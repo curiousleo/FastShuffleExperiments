@@ -144,6 +144,34 @@ static inline uint64_t go_random_bounded64(uint64_t bound) {
   return bits % bound;
 }
 
+// ------------------
+
+// return value in [0,bound)
+template <randfnc32 RandomBitGenerator>
+static inline uint32_t bitmask_random_bounded32(uint32_t bound) {
+  uint32_t result;
+  uint32_t mask = ~0;
+  mask >>= __builtin_clz (bound | 1);
+  do {
+    result = RandomBitGenerator() & mask;
+  } while (result >= bound);
+  return result;
+}
+
+// return value in [0,bound)
+template <randfnc64 RandomBitGenerator>
+static inline uint64_t bitmask_random_bounded64(uint64_t bound) {
+  uint64_t result;
+  uint64_t mask = ~0;
+  mask >>= __builtin_clzl (bound | 1);
+  do {
+    result = RandomBitGenerator() & mask;
+  } while (result >= bound);
+  return result;
+}
+
+// ------------------
+
 // map random value to [0,range), redraws to avoid bias if
 // needed
 template <randfnc32 RandomBitGenerator>

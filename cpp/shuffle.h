@@ -88,6 +88,86 @@ void buf_shuffle_java64(uint32_t *storage, uint64_t size) {
   }
 }
 
+// ----------------------------------------
+
+// good old Fisher-Yates shuffle, shuffling an array of integers
+template <randfnc32 UniformRandomBitGenerator>
+void shuffle_bitmask32(uint32_t *storage, uint32_t size) {
+  uint32_t i;
+  for (i = size; i > 1; i--) {
+    uint32_t nextpos = bitmask_random_bounded32<UniformRandomBitGenerator>(i);
+    uint32_t tmp = storage[i - 1];   // likely in cache
+    uint32_t val = storage[nextpos]; // could be costly
+    storage[i - 1] = val;
+    storage[nextpos] = tmp; // you might have to read this store later
+  }
+}
+
+// good old Fisher-Yates shuffle, shuffling an array of integers
+template <randfnc32 UniformRandomBitGenerator, size_t block = BUFFERSIZE32>
+void buf_shuffle_bitmask32(uint32_t *storage, uint32_t size) {
+  uint32_t i = size;
+  uint32_t buffer[block];
+  for ( ; i > block + 1; i-=block) {
+    for(size_t k = 0; k < block; k++)
+        buffer[k] = bitmask_random_bounded32<UniformRandomBitGenerator>(i - k);
+    for(size_t k = 0; k < block; k++) {
+        uint32_t nextpos = buffer[k];
+        uint32_t tmp = storage[i - 1 - k];
+        uint32_t val = storage[nextpos];
+        storage[i - 1 - k ] = val;
+        storage[nextpos] = tmp;
+    }
+  }
+  for (; i > 1; i--) {
+    uint32_t nextpos = bitmask_random_bounded32<UniformRandomBitGenerator>(i);
+    uint32_t tmp = storage[i - 1];   // likely in cache
+    uint32_t val = storage[nextpos]; // could be costly
+    storage[i - 1] = val;
+    storage[nextpos] = tmp; // you might have to read this store later
+  }
+}
+
+// good old Fisher-Yates shuffle, shuffling an array of integers
+template <randfnc64 UniformRandomBitGenerator>
+void shuffle_bitmask64(uint32_t *storage, uint64_t size) {
+  uint64_t i;
+  for (i = size; i > 1; i--) {
+    uint64_t nextpos = bitmask_random_bounded64<UniformRandomBitGenerator>(i);
+    uint64_t tmp = storage[i - 1];   // likely in cache
+    uint64_t val = storage[nextpos]; // could be costly
+    storage[i - 1] = val;
+    storage[nextpos] = tmp; // you might have to read this store later
+  }
+}
+
+// good old Fisher-Yates shuffle, shuffling an array of integers
+template <randfnc64 UniformRandomBitGenerator, size_t block = BUFFERSIZE64>
+void buf_shuffle_bitmask64(uint32_t *storage, uint64_t size) {
+  uint64_t i = size;
+  uint64_t buffer[block];
+  for ( ; i > block + 1; i-=block) {
+    for(size_t k = 0; k < block; k++)
+        buffer[k] = bitmask_random_bounded64<UniformRandomBitGenerator>(i - k);
+    for(size_t k = 0; k < block; k++) {
+        uint64_t nextpos = buffer[k];
+        uint64_t tmp = storage[i - 1 - k];
+        uint64_t val = storage[nextpos];
+        storage[i - 1 - k ] = val;
+        storage[nextpos] = tmp;
+    }
+  }
+  for (; i > 1; i--) {
+    uint64_t nextpos = bitmask_random_bounded64<UniformRandomBitGenerator>(i);
+    uint64_t tmp = storage[i - 1];   // likely in cache
+    uint64_t val = storage[nextpos]; // could be costly
+    storage[i - 1] = val;
+    storage[nextpos] = tmp; // you might have to read this store later
+  }
+}
+
+// ------------------------------------------------
+
 // good old Fisher-Yates shuffle, shuffling an array of integers
 template <randfnc32 UniformRandomBitGenerator>
 void shuffle_floatmult32(uint32_t *storage, uint32_t size) {
